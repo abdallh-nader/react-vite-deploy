@@ -1,4 +1,3 @@
-
 import { useTheme } from '../context/ThemeContext';
 import { useSimulation } from '../context/SimulationContext';
 import { useTranslation } from '../utils/i18n';
@@ -11,7 +10,7 @@ import {
   Thermometer,
   Gauge,
   AlertTriangle,
-  Droplets
+  Droplets 
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -23,7 +22,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Slider } from "@/components/ui/slider";
-import { chemicals } from '../data/chemicals';
+import { chemicals } from '../context/SimulationContext'; // استيراد من SimulationContext
 import { toast } from '@/hooks/use-toast';
 
 interface AudioRefs {
@@ -89,23 +88,23 @@ export const ReactionControls = ({ soundEnabled = true, audioRefs }: ReactionCon
     
     // Play appropriate sound based on reaction result
     if (isReacting && reactionResult) {
-      if (reactionResult.soundEffect === 'explosion' && audioRefs.explosion.current) {
+      const soundEffect = reactionResult.soundEffect || '';
+      if (soundEffect === 'explosion' && audioRefs.explosion.current) {
         audioRefs.explosion.current.volume = 0.7;
         audioRefs.explosion.current.play().catch(e => console.log('Could not play sound:', e));
-      } else if (reactionResult.soundEffect === 'hissing' && audioRefs.hissing.current) {
+      } else if (soundEffect === 'hissing' && audioRefs.hissing.current) {
         audioRefs.hissing.current.volume = 0.5;
         audioRefs.hissing.current.play().catch(e => console.log('Could not play sound:', e));
-      } else if (reactionResult.soundEffect === 'bubbling' && audioRefs.bubbling.current) {
+      } else if (soundEffect === 'bubbling' && audioRefs.bubbling.current) {
         audioRefs.bubbling.current.volume = 0.4;
         audioRefs.bubbling.current.play().catch(e => console.log('Could not play sound:', e));
-      } else if (reactionResult.soundEffect === 'fizzing' && audioRefs.fizzing.current) {
+      } else if (soundEffect === 'fizzing' && audioRefs.fizzing.current) {
         audioRefs.fizzing.current.volume = 0.3;
         audioRefs.fizzing.current.play().catch(e => console.log('Could not play sound:', e));
       }
     }
     
     return () => {
-      // Cleanup sounds when component unmounts or effect re-runs
       if (soundEnabled && audioRefs) {
         Object.values(audioRefs).forEach(ref => {
           if (ref.current) {
@@ -140,11 +139,9 @@ export const ReactionControls = ({ soundEnabled = true, audioRefs }: ReactionCon
     } else {
       try {
         setIsStarting(true);
-        // Add a small delay before starting the reaction to give UI time to update
         await new Promise(resolve => setTimeout(resolve, 100));
         startReaction();
         
-        // Display toast notification
         toast({
           title: t('reaction.started', 'Reaction Started'),
           description: t('reaction.in.progress', 'Chemical reaction is in progress'),
@@ -163,7 +160,6 @@ export const ReactionControls = ({ soundEnabled = true, audioRefs }: ReactionCon
     }
   };
   
-  // Function to handle reset
   const handleReset = () => {
     clearTestTube();
     setShowResults(false);
@@ -174,7 +170,6 @@ export const ReactionControls = ({ soundEnabled = true, audioRefs }: ReactionCon
     });
   };
   
-  // Get reactant details for display
   const getReactantDetails = () => {
     if (!selectedChemicals.length) return [];
     
@@ -183,20 +178,18 @@ export const ReactionControls = ({ soundEnabled = true, audioRefs }: ReactionCon
       name: language === 'en' ? chem.name : chem.nameAr,
       state: chem.state,
       color: chem.color,
-      quantity: chem.quantity || 1
+      quantity: chem.quantity || 1 // استخدام قيمة افتراضية إذا لم تكن موجودة
     }));
   };
   
   const reactantDetails = getReactantDetails();
   
-  // Check for dangerous reaction
   const isDangerousReaction = reactionResult && (
-    reactionResult.hasFire || 
-    reactionResult.hasExplosion || 
-    reactionResult.temperature > 100
+    (reactionResult.hasFire || false) || 
+    (reactionResult.hasExplosion || false) || 
+    (reactionResult.temperature > 100 || false)
   );
   
-  // Check if we can start a reaction
   const canStartReaction = selectedChemicals.length >= 2 && !isReacting;
   
   return (
@@ -206,7 +199,6 @@ export const ReactionControls = ({ soundEnabled = true, audioRefs }: ReactionCon
       }`}
     >
       <div className="space-y-6">
-        {/* Reaction Information */}
         <div>
           <h3 className={`text-lg font-medium mb-3 flex items-center ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
             <Beaker className={`w-5 h-5 ${language === 'ar' ? 'ml-2' : 'mr-2'}`} />
@@ -215,7 +207,6 @@ export const ReactionControls = ({ soundEnabled = true, audioRefs }: ReactionCon
               : t('sim.choose.reaction')}
           </h3>
           
-          {/* Show current chemicals in test tube */}
           {reactantDetails.length > 0 && (
             <div className="mb-4 p-3 rounded-md bg-secondary/10">
               <h4 className="text-sm font-medium mb-2">
@@ -239,7 +230,6 @@ export const ReactionControls = ({ soundEnabled = true, audioRefs }: ReactionCon
             </div>
           )}
           
-          {/* Temperature and Pressure Controls */}
           <div className="space-y-3 mb-4">
             <div>
               <div className="flex items-center justify-between mb-1">
@@ -282,7 +272,6 @@ export const ReactionControls = ({ soundEnabled = true, audioRefs }: ReactionCon
           </div>
           
           <div className="space-y-3">
-            {/* Reaction Control Buttons */}
             <div className="grid grid-cols-2 gap-2">
               <TooltipProvider>
                 <Tooltip>
@@ -357,7 +346,6 @@ export const ReactionControls = ({ soundEnabled = true, audioRefs }: ReactionCon
               )}
             </div>
             
-            {/* Navigation Buttons */}
             <Button
               variant="outline"
               className={`w-full ${language === 'ar' ? 'flex-row-reverse' : ''}`}
@@ -378,7 +366,6 @@ export const ReactionControls = ({ soundEnabled = true, audioRefs }: ReactionCon
           </div>
         </div>
         
-        {/* Reaction Result Information */}
         {showResults && reactionResult && (
           <div className="mt-4 p-3 rounded-md bg-primary/10 animate-fade-in">
             <h4 className="text-sm font-medium mb-2 flex items-center">
@@ -389,7 +376,7 @@ export const ReactionControls = ({ soundEnabled = true, audioRefs }: ReactionCon
               <div className="flex items-center">
                 <div 
                   className="w-3 h-3 rounded-full mr-2"
-                  style={{ backgroundColor: reactionResult.color }}
+                  style={{ backgroundColor: reactionResult.color || '#FFFFFF' }}
                 ></div>
                 <span>{t('sim.resulting.color', 'Resulting Color')}</span>
               </div>
@@ -403,47 +390,47 @@ export const ReactionControls = ({ soundEnabled = true, audioRefs }: ReactionCon
                     {reactionResult.temperatureChange === 'increase'
                       ? t('sim.temp.increased', 'Temperature increased')
                       : t('sim.temp.decreased', 'Temperature decreased')}
-                    {' '}({reactionResult.temperature.toFixed(1)}°C)
+                    {' '}({(reactionResult.temperature || 0).toFixed(1)}°C)
                   </span>
                 </div>
               )}
               
-              {reactionResult.hasBubbles && (
+              {(reactionResult.hasBubbles || false) && (
                 <div className="flex items-center">
                   <div className="w-3 h-3 rounded-full mr-2 bg-gray-300"></div>
                   <span>{t('sim.gas.released', 'Gas released')}</span>
                 </div>
               )}
               
-              {reactionResult.hasPrecipitate && (
+              {(reactionResult.hasPrecipitate || false) && (
                 <div className="flex items-center">
                   <div className="w-3 h-3 rounded-full mr-2 bg-gray-400"></div>
                   <span>{t('sim.precipitate.formed', 'Precipitate formed')}</span>
                 </div>
               )}
               
-              {reactionResult.hasSmoke && (
+              {(reactionResult.hasSmoke || false) && (
                 <div className="flex items-center">
                   <div className="w-3 h-3 rounded-full mr-2 bg-gray-500"></div>
                   <span>{t('sim.smoke.produced', 'Vapor/smoke produced')}</span>
                 </div>
               )}
               
-              {reactionResult.hasFire && (
+              {(reactionResult.hasFire || false) && (
                 <div className="flex items-center">
                   <div className="w-3 h-3 rounded-full mr-2 bg-orange-500"></div>
                   <span>{t('sim.fire.produced', 'Fire produced')}</span>
                 </div>
               )}
               
-              {reactionResult.hasExplosion && (
+              {(reactionResult.hasExplosion || false) && (
                 <div className="flex items-center">
                   <div className="w-3 h-3 rounded-full mr-2 bg-red-600"></div>
                   <span>{t('sim.explosion.produced', 'Explosion occurred')}</span>
                 </div>
               )}
               
-              {reactionResult.hasIce && (
+              {(reactionResult.hasIce || false) && (
                 <div className="flex items-center">
                   <div className="w-3 h-3 rounded-full mr-2 bg-blue-300"></div>
                   <span>{t('sim.freezing.produced', 'Freezing occurred')}</span>

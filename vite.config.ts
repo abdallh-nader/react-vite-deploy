@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    base: process.env.VITE_BASS_PATH || "/react-vite-deploy",
   },
   plugins: [
     react(),

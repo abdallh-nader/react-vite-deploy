@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { useTranslation } from '../utils/i18n';
-import { ChevronsUpDown } from 'lucide-react';
+import { ChevronsUpDown, Cloud, Flame, Snowflake, Bomb } from 'lucide-react';
 
 interface ReactionResultProps {
   reactionResult: {
@@ -9,10 +8,12 @@ interface ReactionResultProps {
     temperatureChange: 'increase' | 'decrease' | 'none';
     hasBubbles: boolean;
     hasPrecipitate: boolean;
-    hasSmoke: boolean;
-    hasFire: boolean;
-    hasIce: boolean;
-    hasExplosion: boolean;
+    temperature: number;
+    hasGas?: boolean;
+    hasSmoke?: boolean;
+    hasFire?: boolean;
+    hasIce?: boolean;
+    hasExplosion?: boolean;
     formula?: string;
   };
   stateDescription: string;
@@ -80,7 +81,7 @@ const ReactionResults = ({
         
         {reactionResult.hasSmoke && (
           <div className="flex items-center">
-            <div className="w-4 h-4 rounded-full mr-2 bg-gray-400"></div>
+            <Cloud className="w-4 h-4 mr-2 text-gray-400" />
             <span className="text-sm">
               {t('smoke.vapor')}
             </span>
@@ -89,7 +90,7 @@ const ReactionResults = ({
         
         {reactionResult.hasFire && (
           <div className="flex items-center">
-            <div className="w-4 h-4 rounded-full mr-2 bg-orange-500"></div>
+            <Flame className="w-4 h-4 mr-2 text-orange-500" />
             <span className="text-sm">
               {t('fire.effect')}
             </span>
@@ -98,7 +99,7 @@ const ReactionResults = ({
         
         {reactionResult.hasIce && (
           <div className="flex items-center">
-            <div className="w-4 h-4 rounded-full mr-2 bg-blue-300"></div>
+            <Snowflake className="w-4 h-4 mr-2 text-blue-300" />
             <span className="text-sm">
               {t('ice.effect')}
             </span>
@@ -107,7 +108,7 @@ const ReactionResults = ({
         
         {reactionResult.hasExplosion && (
           <div className="flex items-center">
-            <div className="w-4 h-4 rounded-full mr-2 bg-red-600"></div>
+            <Bomb className="w-4 h-4 mr-2 text-red-600" />
             <span className="text-sm">
               {t('explosion.effect')}
             </span>
